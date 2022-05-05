@@ -2,7 +2,9 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
-url="https://www.ceneo.pl/106184678#tab=reviews"
+
+ID=input("ID: ")
+url=f"https://www.ceneo.pl/{ID}#tab=reviews"
 response = requests.get(url)
 # print(response.text)
 
