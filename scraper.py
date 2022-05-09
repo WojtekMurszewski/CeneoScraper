@@ -7,8 +7,8 @@ def get_item(ancestor, selector, attribute=None, return_list=False):
         if return_list:
             return [item.get_text().strip() for item in ancestor.select(selector)]
         if attribute:            
-            return ancestor(selector)[attribute]
-        return ancestor(selector).get_text().strip()
+            return ancestor.select_one(selector)[attribute]
+        return ancestor.select_one(selector).get_text().strip()
     except (AttributeError, TypeError):
         return None
 
@@ -25,14 +25,14 @@ selectors = {
         "cons": ["div[class$=negatives] ~ div.review-feature__item", None, True],
 }
 
-ID=input("ID: ")
-url=f"https://www.ceneo.pl/{ID}#tab=reviews"
-response = requests.get(url)
-# print(response.text)
-
-page = BeautifulSoup(response.text, 'html.parser')
+product_id=input("ID: ")
+url=f"https://www.ceneo.pl/{product_id}#tab=reviews"
 all_opinions=[]
+
 while(url):
+    print(url)
+    response = requests.get(url)
+    page = BeautifulSoup(response.text, 'html.parser')
     opinions = page.select("div.js_product-review")
 
     for opinion in opinions:
@@ -43,9 +43,9 @@ while(url):
         single_opinion["opinion_id"] = opinion["data-entry-id"]
         all_opinions.append(single_opinion)
     try:
-        url = "https://www.ceneo.pl"+page("a.pagination__next")["href"]
+        url = "https://www.ceneo.pl"+page.select_one("a.pagination__next")["href"]
     except TypeError:
         url = None
 
-with open(f"opinions/{ID}.json", "w", encoding="UTF-8") as jf:
+with open(f"opinions/{product_id}.json", "w", encoding="UTF-8") as jf:
     json.dump(all_opinions, jf, indent=4, ensure_ascii=False)
